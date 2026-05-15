@@ -8,7 +8,7 @@ export function LoginHeader() {
         <>
             {/* Logo et branding */}
             <div className="flex items-center justify-center gap-3 animate-bounce transition-all duration-300">
-                <div className="w-12 h-12 bg-background rounded-md flex items-center justify-center shadow-lg shadow-primary/20 p-0.5">
+                <div className="w-12 h-12 bg-secondary rounded-md flex items-center justify-center shadow-lg p-0.5">
                     <div className="w-full h-full rounded-[14px] flex items-center justify-center">
                         <img 
                             src={logoUrl} 

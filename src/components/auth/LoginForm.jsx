@@ -178,7 +178,7 @@ export function LoginForm() {
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full h-12 bg-gradient-to-r from-primary to-cage-couple text-white rounded-xl hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 font-semibold text-base flex items-center justify-center gap-2.5 mt-6"
+                    className="w-full h-12 bg-primary text-white rounded-xl hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 font-semibold text-base flex items-center justify-center gap-2.5 mt-6"
                 >
                     {isLoading ? (
                         <>

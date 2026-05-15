@@ -24,7 +24,7 @@ export function LoginBranding() {
     ]
 
     return (
-        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary via-primary/90 to-cage-couple relative overflow-hidden">
+        <div className="hidden lg:flex lg:w-1/2 bg-primary relative overflow-hidden">
             {/* Motifs décoratifs */}
             <div className="absolute inset-0 opacity-10">
                 <div className="absolute top-20 left-20 w-64 h-64 bg-white rounded-full blur-3xl"></div>
