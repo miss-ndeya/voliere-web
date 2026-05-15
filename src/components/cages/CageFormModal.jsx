@@ -81,7 +81,7 @@ export function CageFormModal({ isOpen, onClose, cage, onSubmit, isLoading }) {
             onClose={onClose}
             title={cage ? 'Modifier la cage' : 'Nouvelle cage'}
         >
-            <form onSubmit={handleSubmit} className="space-y-4 p-6">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-6">
                 {/* Numéro */}
                 <div>
                     <label htmlFor="numero" className="block text-sm font-medium text-foreground mb-2">

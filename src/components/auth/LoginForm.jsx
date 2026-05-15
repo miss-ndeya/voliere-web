@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { useLogin } from '../../hooks/useLogin'
 import { useToast } from '../../context/ToastContext'
 import { LoginFormField } from './LoginFormField'
@@ -192,6 +193,14 @@ export function LoginForm() {
                         <span>Se connecter</span>
                     )}
                 </button>
+
+                {/* Lien vers inscription */}
+                <p className="text-center text-sm text-muted-foreground mt-4">
+                    Vous n'avez pas de compte ?{' '}
+                    <Link to="/register" className="text-primary font-medium hover:underline">
+                        Créer un compte
+                    </Link>
+                </p>
             </form>
         )
     }

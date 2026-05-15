@@ -115,19 +115,25 @@ function Sorties() {
     // Configuration des colonnes du tableau
     const columns = [
         { header: 'Pigeon' },
-        { header: 'Type' },
-        { header: 'Date' },
-        { header: 'Détails' },
-        { header: 'Actions' }
+        { header: 'Type', className: 'hidden sm:table-cell' },
+        { header: 'Date', className: 'hidden md:table-cell' },
+        { header: 'Détails', className: 'hidden lg:table-cell' },
+        { header: 'Actions' },
     ]
 
-    // Fonction de rendu des lignes
     const renderRow = (sortie) => (
         <tr key={sortie.id} className="border-b border-border hover:bg-muted/50 transition-colors">
-            <td className="p-3 font-medium text-foreground">
-                {sortie.pigeon?.bague} — {sortie.pigeon?.race}
+            <td className="p-2 sm:p-3 font-medium text-foreground">
+                <div>
+                    <div>{sortie.pigeon?.bague}</div>
+                    <div className="text-xs text-muted-foreground sm:hidden">
+                        {sortie.type === 'vente' ? 'Vente' : sortie.type === 'deces' ? 'Décès' : 'Perte'}
+                        {' · '}
+                        {new Date(sortie.date_sortie).toLocaleDateString('fr-FR')}
+                    </div>
+                </div>
             </td>
-            <td className="p-3">
+            <td className="hidden sm:table-cell p-2 sm:p-3">
                 <span className={`px-2 py-1 rounded text-xs font-medium ${sortie.type === 'vente'
                         ? 'bg-cage-single-soft text-cage-single-foreground'
                         : sortie.type === 'deces'
@@ -137,10 +143,10 @@ function Sorties() {
                     {sortie.type === 'vente' ? 'Vente' : sortie.type === 'deces' ? 'Décès' : 'Perte'}
                 </span>
             </td>
-            <td className="p-3 text-muted-foreground">
+            <td className="hidden md:table-cell p-2 sm:p-3 text-muted-foreground">
                 {new Date(sortie.date_sortie).toLocaleDateString('fr-FR')}
             </td>
-            <td className="p-3 text-muted-foreground text-sm">
+            <td className="hidden lg:table-cell p-2 sm:p-3 text-muted-foreground text-sm">
                 {sortie.type === 'vente' && (
                     <div>
                         {sortie.acheteur && <div>Acheteur: {sortie.acheteur}</div>}
@@ -150,8 +156,8 @@ function Sorties() {
                 {sortie.type === 'deces' && (sortie.cause || '-')}
                 {sortie.type === 'perte' && (sortie.circonstance || '-')}
             </td>
-            <td className="p-3">
-                <div className="flex gap-2">
+            <td className="p-2 sm:p-3">
+                <div className="flex gap-1 sm:gap-2">
                     <button
                         onClick={() => handleEdit(sortie)}
                         className="p-1.5 text-primary hover:bg-primary/10 rounded transition-colors"

@@ -1,4 +1,4 @@
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, User } from 'lucide-react'
 
 /**
  * Champ de formulaire de connexion avec icône et validation
@@ -16,15 +16,27 @@ export function LoginFormField({
     showPassword,
     onTogglePassword,
     onChange,
-    onBlur
+    onBlur,
+    helperText
 }) {
-    const Icon = name === 'email' ? Mail : Lock
-    const isPassword = name === 'password'
+    // Déterminer l'icône selon le nom du champ
+    const getIcon = () => {
+        switch(name) {
+            case 'email': return Mail
+            case 'password': return Lock
+            case 'password_confirmation': return Lock
+            case 'name': return User
+            default: return Mail
+        }
+    }
+    
+    const Icon = getIcon()
+    const isPassword = name === 'password' || name === 'password_confirmation'
 
     return (
         <div className="space-y-1.5">
             <label htmlFor={id} className="block text-sm font-semibold text-foreground">
-                {label}
+                {label} {(name === 'name' || name === 'email' || name === 'password' || name === 'password_confirmation') && <span className="text-destructive">*</span>}
             </label>
             <div className="relative group">
                 {/* Icône à gauche */}
@@ -70,6 +82,13 @@ export function LoginFormField({
                 <p className="text-xs text-destructive flex items-center gap-1.5 mt-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
                     <span className="w-1.5 h-1.5 bg-destructive rounded-full"></span>
                     {error}
+                </p>
+            )}
+            
+            {/* Helper text */}
+            {helperText && !error && (
+                <p className="text-xs text-muted-foreground mt-1">
+                    {helperText}
                 </p>
             )}
         </div>

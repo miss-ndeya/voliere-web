@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { Bird } from 'lucide-react'
 
 /**
@@ -17,9 +18,17 @@ export function PigeonCard({ pigeon }) {
                 <div className="text-xs text-muted-foreground">
                     Bague : {pigeon.bague} · {pigeon.race}
                 </div>
-                <div className="text-xs text-muted-foreground">
-                    Né le {new Date(pigeon?.date_naissance).toLocaleDateString("fr-FR")}
-                </div>
+                {pigeon.date_naissance && (
+                    <p className="text-xs text-muted-foreground">
+                        Né le {new Date(pigeon.date_naissance).toLocaleDateString('fr-FR')}
+                    </p>
+                )}
+                <Link
+                    to={`/pigeons/${pigeon.id}/historique`}
+                    className="text-xs text-accent hover:underline mt-1 inline-block"
+                >
+                    Voir la fiche
+                </Link>
             </div>
         </div>
     )

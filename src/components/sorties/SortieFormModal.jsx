@@ -8,7 +8,7 @@ import Input from '../ui/Input'
 /**
  * Modal de formulaire pour créer/modifier une sortie
  */
-export function SortieFormModal({ isOpen, onClose, sortie, onSubmit, isLoading }) {
+export function SortieFormModal({ isOpen, onClose, sortie, preselectedPigeonId, onSubmit, isLoading }) {
     const [form, setForm] = useState({
         pigeon_id: '',
         type: '',
@@ -28,9 +28,10 @@ export function SortieFormModal({ isOpen, onClose, sortie, onSubmit, isLoading }
         enabled: isOpen
     })
 
-    // Pré-remplir le formulaire en mode édition
+    // Pré-remplir le formulaire en mode édition OU avec pigeon pré-sélectionné
     useEffect(() => {
         if (sortie) {
+            // Mode édition d'une sortie existante
             setForm({
                 pigeon_id: sortie.pigeon_id || '',
                 type: sortie.type || '',
@@ -41,7 +42,19 @@ export function SortieFormModal({ isOpen, onClose, sortie, onSubmit, isLoading }
                 cause: sortie.cause || '',
                 circonstance: sortie.circonstance || ''
             })
+        } else if (preselectedPigeonId) {
+            // Mode création avec pigeon pré-sélectionné
+            setForm({
+                pigeon_id: preselectedPigeonId.toString(),
+                type: '',
+                date_sortie: '',
+                prix: '',
+                acheteur: '',
+                cause: '',
+                circonstance: ''
+            })
         } else {
+            // Mode création normal
             setForm({
                 pigeon_id: '',
                 type: '',
@@ -53,7 +66,7 @@ export function SortieFormModal({ isOpen, onClose, sortie, onSubmit, isLoading }
             })
         }
         setErrors({})
-    }, [sortie, isOpen])
+    }, [sortie, preselectedPigeonId, isOpen])
 
     // Validation côté client
     const validate = () => {
@@ -116,9 +129,9 @@ export function SortieFormModal({ isOpen, onClose, sortie, onSubmit, isLoading }
         if (!validate()) return
 
         try {
-            // En mode édition, ne pas envoyer pigeon_id (non modifiable)
+            // En mode édition (avec sortie.id), ne pas envoyer pigeon_id (non modifiable)
             const dataToSubmit = { ...form }
-            if (sortie) {
+            if (sortie?.id) {
                 delete dataToSubmit.pigeon_id
             }
 
@@ -146,7 +159,7 @@ export function SortieFormModal({ isOpen, onClose, sortie, onSubmit, isLoading }
     }
 
     // Filtrer les pigeons actifs uniquement (sauf en mode édition)
-    const pigeonsActifs = sortie
+    const pigeonsActifs = sortie?.id
         ? pigeons || []
         : pigeons?.filter(p => p.statut === 'actif') || []
 
@@ -168,9 +181,9 @@ export function SortieFormModal({ isOpen, onClose, sortie, onSubmit, isLoading }
                             id="pigeon_id"
                             value={form.pigeon_id}
                             onChange={(e) => setForm({ ...form, pigeon_id: e.target.value })}
-                            disabled={isLoading || sortie} // Désactiver en mode édition
+                            disabled={isLoading || sortie?.id} // Désactiver seulement en mode édition
                             className={`w-full border rounded-lg px-3 py-2 text-sm bg-card text-foreground focus:ring-2 focus:ring-ring focus:outline-none ${errors.pigeon_id ? 'border-destructive' : 'border-input'
-                                } ${sortie ? 'opacity-60 cursor-not-allowed' : ''}`}
+                                } ${sortie?.id ? 'opacity-60 cursor-not-allowed' : ''}`}
                         >
                             <option value="">Choisir un pigeon...</option>
                             {pigeonsActifs.map(p => (

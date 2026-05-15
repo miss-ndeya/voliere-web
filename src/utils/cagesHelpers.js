@@ -1,11 +1,8 @@
-// Configuration des colonnes du tableau
-    export const columns = [
-        { header: 'Numéro' },
-        { header: 'Nom' },
-        { header: 'Superficie' },
-        { header: 'Statut' },
-        { header: 'Occupants' },
-        { header: 'Actions' }
-    ]
-
-   
+export const columns = [
+    { header: 'Numéro' },
+    { header: 'Nom', className: 'hidden sm:table-cell' },
+    { header: 'Superficie', className: 'hidden md:table-cell' },
+    { header: 'Statut' },
+    { header: 'Occupants', className: 'hidden lg:table-cell' },
+    { header: 'Actions' },
+]

@@ -105,7 +105,7 @@ export function ReproductionFormModal({ isOpen, onClose, reproduction, onSubmit,
             title={reproduction ? 'Modifier la reproduction' : 'Nouvelle reproduction'}
             size="lg"
         >
-            <form onSubmit={handleSubmit} className="space-y-4 p-6">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-6">
                 {/* Couple */}
                 <div>
                     <label htmlFor="couple_id" className="block text-sm font-medium text-foreground mb-2">

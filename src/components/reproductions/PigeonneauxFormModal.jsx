@@ -117,7 +117,7 @@ export function PigeonneauxFormModal({ isOpen, onClose, reproduction, onSubmit, 
                 )}
 
                 {/* Liste des pigeonneaux */}
-                <div className="space-y-4 mb-6">
+                <div className="flex flex-col gap-4 mb-6">
                     {pigeonneaux.map((pigeonneau, index) => (
                         <div key={index} className="border border-border rounded-lg p-4">
                             <div className="flex items-start gap-4">

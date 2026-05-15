@@ -41,7 +41,28 @@ const authService = {
   getCurrentUser: async () => {
     const response = await api.get('/user')
     return response.data
+  },
+
+  /**
+   * Mettre à jour le profil
+   * @param {Object} data - Nom et email
+   * @returns {Promise}
+   */
+  updateProfile: async (data) => {
+    const response = await api.put('/profile', data)
+    return response.data
+  },
+
+  /**
+   * Changer le mot de passe
+   * @param {Object} data - Mot de passe actuel, nouveau et confirmation
+   * @returns {Promise}
+   */
+  updatePassword: async (data) => {
+    const response = await api.put('/profile/password', data)
+    return response.data
   }
 }
 
 export default authService
+export { authService }

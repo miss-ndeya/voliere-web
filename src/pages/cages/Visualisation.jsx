@@ -1,8 +1,12 @@
 import { useState, useMemo, useEffect } from 'react'
+import { Plus } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { VoliereHeader, CageGridContainer, CageDetailPanel } from '../../components/voliere'
 import { VoliereSkeleton } from '../../components/skeletons'
+import { CageFormModal } from '../../components/cages/CageFormModal'
 import { useToast } from '../../context/ToastContext'
+import { useCages } from '../../hooks/useCages'
+import Button from '../../components/ui/Button'
 import api from '../../api/axios'
 import { cageService } from '../../api/services/cageService'
 
@@ -10,8 +14,12 @@ function Visualisation() {
     const queryClient = useQueryClient()
     const { showToast } = useToast()
     const [selectedCage, setSelectedCage] = useState(null)
+    const [showAddModal, setShowAddModal] = useState(false)
     const [filter, setFilter] = useState('all')
     const [query, setQuery] = useState('')
+
+    // Utiliser le hook useCages pour créer une cage
+    const { createCage, isCreating } = useCages()
 
     // Récupérer TOUTES les cages une seule fois (pas de refetch sur filtre)
     const { data: allCages, isLoading } = useQuery({
@@ -30,6 +38,12 @@ function Visualisation() {
     const { data: couples } = useQuery({
         queryKey: ['couples'],
         queryFn: () => api.get('/couples').then(res => res.data),
+        staleTime: 30000
+    })
+
+    const { data: reproductions = [] } = useQuery({
+        queryKey: ['reproductions'],
+        queryFn: () => api.get('/reproductions').then(res => res.data),
         staleTime: 30000
     })
 
@@ -81,10 +95,33 @@ function Visualisation() {
         couple: allCages?.data?.filter(c => c.statut === 'couple').length || 0,
     }), [allCages])
 
-    // Pigeons sans cage
-    const pigeonsSansCage = useMemo(() => 
-        pigeons?.filter(p => p.statut === 'actif' && !allCages?.data?.find(c => c.occupants?.pigeon?.id === p.id)) || []
-    , [pigeons, allCages])
+    // Pigeons sans cage ET sans couple actif
+    const pigeonsSansCage = useMemo(() => {
+        if (!pigeons || !allCages?.data || !couples) return []
+        
+        return pigeons.filter(p => {
+            // Le pigeon doit être actif
+            if (p.statut !== 'actif') return false
+            
+            // Vérifier si le pigeon est dans une cage seul
+            const estSeulDansCage = allCages.data.some(c => c.occupants?.pigeon?.id === p.id)
+            if (estSeulDansCage) return false
+            
+            // Vérifier si le pigeon fait partie d'un couple dans une cage
+            const estEnCoupleDansCage = allCages.data.some(c => 
+                c.occupants?.male?.id === p.id || c.occupants?.femelle?.id === p.id
+            )
+            if (estEnCoupleDansCage) return false
+            
+            // Vérifier si le pigeon fait partie d'un couple actif (même sans cage)
+            const estEnCoupleActif = couples.some(c => 
+                c.actif && (c.male_id === p.id || c.femelle_id === p.id)
+            )
+            if (estEnCoupleActif) return false
+            
+            return true
+        })
+    }, [pigeons, allCages, couples])
 
     // Couples sans cage
     const couplesSansCage = useMemo(() =>
@@ -132,12 +169,23 @@ function Visualisation() {
         setFilter('all')
     }
 
+    const handleAddCage = async (formData) => {
+        try {
+            await createCage(formData)
+            setShowAddModal(false)
+        } catch (error) {
+            // Le toast d'erreur est déjà affiché par le hook
+            // Le modal reste ouvert
+        }
+    }
+
     // Loading skeleton
     if (isLoading) {
         return <VoliereSkeleton />
     }
 
     return (
+        <>
         <div className="space-y-4 sm:space-y-6">
             {/* Header avec filtres */}
             <VoliereHeader
@@ -152,6 +200,7 @@ function Visualisation() {
                     filtered: filteredCages.length
                 }}
                 showResultCount={query.length > 0}
+                onAddCage={() => setShowAddModal(true)}
             />
 
             {/* Layout flex: Grille + Sidebar */}
@@ -176,6 +225,8 @@ function Visualisation() {
                         pigeonsSansCage={pigeonsSansCage}
                         couplesSansCage={couplesSansCage}
                         pigeons={pigeons}
+                        couples={couples}
+                        reproductions={reproductions}
                         onAffecter={handleAffecter}
                         onLiberer={handleLiberer}
                         isLoading={affecter.isPending || liberer.isPending}
@@ -183,6 +234,14 @@ function Visualisation() {
                 )}
             </div>
         </div>
+
+            <CageFormModal
+                isOpen={showAddModal}
+                onClose={() => setShowAddModal(false)}
+                onSubmit={handleAddCage}
+                isLoading={isCreating}
+            />
+        </>
     )
 }
 

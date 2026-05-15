@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Loader2, Bird, Clock, FileText } from 'lucide-react'
+import { X, Loader2, Bird, Clock, FileText, Baby } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useCageHistory } from '../../hooks/useVoliere'
 import { PigeonCard } from './PigeonCard'
@@ -14,6 +14,8 @@ export function CageDetailPanel({
     pigeonsSansCage, 
     couplesSansCage, 
     pigeons,
+    couples = [],
+    reproductions = [],
     onAffecter, 
     onLiberer, 
     isLoading 
@@ -23,8 +25,19 @@ export function CageDetailPanel({
     const [type, setType] = useState('')
     const [selectedId, setSelectedId] = useState('')
 
-    // Récupérer l'historique de la cage (limité à 2 entrées)
     const { data: history, isLoading: isLoadingHistory } = useCageHistory(cage.id, 2)
+
+    const activeCouple = cage.statut === 'couple' && cage.occupants?.male && cage.occupants?.femelle
+        ? couples.find(
+            (c) => c.actif && c.male_id === cage.occupants.male.id && c.femelle_id === cage.occupants.femelle.id
+          )
+        : null
+
+    const coupleReproductions = activeCouple
+        ? reproductions
+            .filter((r) => r.couple_id === activeCouple.id)
+            .slice(0, 3)
+        : []
 
     const handleSubmit = (e) => {
         e.preventDefault()
@@ -40,11 +53,11 @@ export function CageDetailPanel({
           <span className="h-2 w-2 rounded-full bg-cage-free-border" /> Libre
         </span>
       ) : cage.statut === "occupe" ? (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-cage-couple-soft text-cage-couple px-3 py-1 text-xs font-medium ring-1 ring-cage-single-border">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-cage-single-soft text-cage-single px-3 py-1 text-xs font-medium ring-1 ring-cage-single-border">
           <Bird className="h-3 w-3" /> Occupée — 1 pigeon
         </span>
       ) : (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-cage-single-soft text-cage-single px-3 py-1 text-xs font-medium ring-1 ring-cage-single-border">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-cage-couple-soft text-cage-couple px-3 py-1 text-xs font-medium ring-1 ring-cage-couple-border">
           <Bird className="h-3 w-3" /> Occupée par un couple
         </span>
       );
@@ -236,7 +249,35 @@ export function CageDetailPanel({
                     )}
                 </div>
 
-                {/* Historique */}
+                {coupleReproductions.length > 0 && (
+                    <div className="border-t border-border pt-4 mt-4">
+                        <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                            <Baby className="h-4 w-4" />
+                            Reproductions liées
+                        </h3>
+                        <div className="space-y-2">
+                            {coupleReproductions.map((r) => (
+                                <div key={r.id} className="rounded-lg border border-border p-3 text-sm">
+                                    <p className="font-medium text-foreground">
+                                        Ponte : {r.date_ponte ? new Date(r.date_ponte).toLocaleDateString('fr-FR') : '—'}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                        {r.nombre_jeunes ?? r.nb_jeunes ?? 0} jeune(s)
+                                        {r.date_eclosion && ` · Éclosion ${new Date(r.date_eclosion).toLocaleDateString('fr-FR')}`}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => navigate('/reproductions')}
+                            className="w-full mt-2 text-sm text-primary hover:underline"
+                        >
+                            Voir toutes les reproductions
+                        </button>
+                    </div>
+                )}
+
                 <div className="border-t border-border pt-4 mt-4">
                     <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
                         <Clock className="h-4 w-4" />
