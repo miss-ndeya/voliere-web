@@ -2,10 +2,12 @@ import { useState, useMemo } from 'react'
 import { Plus } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { usePigeons } from '../../hooks/usePigeons'
+import { useSorties } from '../../hooks/useSorties'
 import { PigeonFormModal } from '../../components/pigeons/PigeonFormModal'
 import { PigeonFilters } from '../../components/pigeons/PigeonFilters'
-import { ConfirmModal } from '../../components/ui/ConfirmModal'
+import { SortieFormModal } from '../../components/sorties/SortieFormModal'
 import { DataTable } from '../../components/ui/DataTable'
+import { ConfirmModal } from '../../components/ui/ConfirmModal'
 import Button from '../../components/ui/Button'
 import { columns } from '../../utils/pigeons'
 import { renderRow } from '../../components/pigeons/RenderRow'
@@ -13,8 +15,10 @@ import { renderRow } from '../../components/pigeons/RenderRow'
 function Pigeons() {
     const navigate = useNavigate()
     const [showModal, setShowModal] = useState(false)
-    const [showDeleteModal, setShowDeleteModal] = useState(false)
+    const [showSortieModal, setShowSortieModal] = useState(false)
     const [pigeonEdit, setPigeonEdit] = useState(null)
+    const [pigeonForExit, setPigeonForExit] = useState(null)
+    const [showDeleteModal, setShowDeleteModal] = useState(false)
     const [pigeonToDelete, setPigeonToDelete] = useState(null)
     const [filters, setFilters] = useState({
         search: '',
@@ -33,6 +37,12 @@ function Pigeons() {
         isUpdating,
         isDeleting
     } = usePigeons()
+
+    // Utiliser le hook useSorties pour créer une sortie
+    const {
+        createSortie,
+        isCreating: isCreatingSortie
+    } = useSorties()
 
     // Filtrage côté client
     const filteredPigeons = useMemo(() => {
@@ -74,22 +84,36 @@ function Pigeons() {
         setShowModal(true)
     }
 
-    const handleDeleteClick = (pigeon) => {
+    const handleDeclareExit = (pigeon) => {
+        setPigeonForExit(pigeon)
+        setShowSortieModal(true)
+    }
+
+    const handleArchive = (pigeon) => {
         setPigeonToDelete(pigeon)
         setShowDeleteModal(true)
     }
 
-    const handleDeleteConfirm = async () => {
-        if (pigeonToDelete) {
-            try {
-                await deletePigeon(pigeonToDelete.id)
-                // Fermer uniquement si succès
-                setShowDeleteModal(false)
-                setPigeonToDelete(null)
-            } catch (error) {
-                // Le toast d'erreur est déjà affiché par le hook
-                // Le modal reste ouvert
-            }
+    const handleConfirmArchive = async () => {
+        if (!pigeonToDelete) return
+        try {
+            await deletePigeon(pigeonToDelete.id)
+            setShowDeleteModal(false)
+            setPigeonToDelete(null)
+        } catch {
+            // toast géré par le hook
+        }
+    }
+
+    const handleSortieSubmit = async (formData) => {
+        try {
+            await createSortie(formData)
+            // Fermer uniquement si succès
+            setShowSortieModal(false)
+            setPigeonForExit(null)
+        } catch (error) {
+            // Le toast d'erreur est déjà affiché par le hook
+            // Le modal reste ouvert
         }
     }
 
@@ -109,7 +133,13 @@ function Pigeons() {
         }
     }
 
-    const renderPigeonsRow = (cage) => renderRow(cage, { navigate, handleEdit, handleDeleteClick, isDeleting })
+    const renderPigeonsRow = (pigeon) => renderRow(pigeon, {
+        navigate,
+        handleEdit,
+        handleDeclareExit,
+        handleArchive,
+        isDeleting
+    })
 
     if (isLoading) {
         return (
@@ -168,19 +198,29 @@ function Pigeons() {
                 onSubmit={handleSubmit}
                 isLoading={isCreating || isUpdating}
             />
-            {/* Modal de confirmation de suppression */}
+
+            {/* Modal de déclaration de sortie */}
+            <SortieFormModal
+                isOpen={showSortieModal}
+                onClose={() => {
+                    setShowSortieModal(false)
+                    setPigeonForExit(null)
+                }}
+                preselectedPigeonId={pigeonForExit?.id}
+                onSubmit={handleSortieSubmit}
+                isLoading={isCreatingSortie}
+            />
+
             <ConfirmModal
                 isOpen={showDeleteModal}
                 onClose={() => {
                     setShowDeleteModal(false)
                     setPigeonToDelete(null)
                 }}
-                onConfirm={handleDeleteConfirm}
-                title="Supprimer le pigeon"
-                message={`Êtes-vous sûr de vouloir supprimer le pigeon ${pigeonToDelete?.bague} ? Cette action est irréversible.`}
-                confirmText="Supprimer"
-                cancelText="Annuler"
-                variant="destructive"
+                onConfirm={handleConfirmArchive}
+                title="Archiver le pigeon"
+                message={`Êtes-vous sûr de vouloir archiver le pigeon ${pigeonToDelete?.bague} ? Le pigeon sera masqué mais restera consultable dans l'historique et l'arbre généalogique.`}
+                confirmText="Archiver"
                 isLoading={isDeleting}
             />
         </>

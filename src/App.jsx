@@ -2,7 +2,9 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
 import Login from './pages/auth/Login'
+import Register from './pages/auth/Register'
 import Dashboard from './pages/Dashboard'
+import Profile from './pages/Profile'
 import Pigeons from './pages/pigeons/Pigeons'
 import PigeonHistorique from './pages/pigeons/PigeonHistorique'
 import Couples from './pages/couples/Couples'
@@ -14,6 +16,7 @@ import Cages from './pages/cages/Cages'
 import Visualisation from './pages/cages/Visualisation'
 import CageHistorique from './pages/cages/CageHistorique'
 import Layout from './components/Layout'
+import NotFound from './pages/NotFound'
 
 // Route protégée
 const PrivateRoute = ({ children }) => {
@@ -38,6 +41,7 @@ function App() {
         <ToastProvider>
             <Routes>
                 <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
                 
                 <Route path="/" element={
                     <PrivateRoute>
@@ -45,18 +49,23 @@ function App() {
                     </PrivateRoute>
                 }>
                     <Route index element={<Dashboard />} />
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="profile" element={<Profile />} />
                     <Route path="pigeons" element={<Pigeons />} />
                     <Route path="pigeons/:id/historique" element={<PigeonHistorique />} />
-                <Route path="couples" element={<Couples />} />
-                <Route path="couples/:id/historique" element={<CoupleHistorique />} />
-                <Route path="reproductions" element={<Reproductions />} />
-                <Route path="genealogie" element={<GenealogyTree />} />
-                <Route path="sorties" element={<Sorties />} />
-                <Route path="cages" element={<Cages />} />
-                <Route path="visualisation" element={<Visualisation />} />
-                <Route path="cages/:id/historique" element={<CageHistorique />} />
-            </Route>
-        </Routes>
+                    <Route path="couples" element={<Couples />} />
+                    <Route path="couples/:id/historique" element={<CoupleHistorique />} />
+                    <Route path="reproductions" element={<Reproductions />} />
+                    <Route path="genealogie" element={<GenealogyTree />} />
+                    <Route path="sorties" element={<Sorties />} />
+                    <Route path="cages" element={<Cages />} />
+                    <Route path="visualisation" element={<Visualisation />} />
+                    <Route path="cages/:id/historique" element={<CageHistorique />} />
+                </Route>
+
+                {/* Route 404 - doit être en dernier */}
+                <Route path="*" element={<NotFound />} />
+            </Routes>
         </ToastProvider>
     )
 }

@@ -26,9 +26,8 @@ export function useCouples() {
             showToast('Couple créé avec succès', 'success')
         },
         onError: (error) => {
-            if (error.response?.status !== 422) {
-                showToast(error.response?.data?.message || 'Erreur lors de la création du couple', 'error')
-            }
+            const message = error.response?.data?.message || 'Erreur lors de la création du couple'
+            showToast(message, 'error')
         }
     })
 
@@ -40,9 +39,8 @@ export function useCouples() {
             showToast('Couple modifié avec succès', 'success')
         },
         onError: (error) => {
-            if (error.response?.status !== 422) {
-                showToast(error.response?.data?.message || 'Erreur lors de la modification du couple', 'error')
-            }
+            const message = error.response?.data?.message || 'Erreur lors de la modification du couple'
+            showToast(message, 'error')
         }
     })
 

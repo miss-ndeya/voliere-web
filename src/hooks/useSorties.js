@@ -26,13 +26,14 @@ export function useSorties() {
             queryClient.invalidateQueries(['sorties'])
             queryClient.invalidateQueries(['pigeons'])
             queryClient.invalidateQueries(['cages'])
+            queryClient.invalidateQueries(['cages-visualisation'])
+            queryClient.invalidateQueries(['couples'])
+            queryClient.invalidateQueries(['dashboard'])
             showToast('Sortie enregistrée avec succès', 'success')
         },
         onError: (error) => {
-            // Ne pas afficher de toast pour les erreurs de validation (422)
-            if (error.response?.status !== 422) {
-                showToast(error.response?.data?.message || 'Erreur lors de l\'enregistrement de la sortie', 'error')
-            }
+            const message = error.response?.data?.message || 'Erreur lors de l\'enregistrement de la sortie'
+            showToast(message, 'error')
         }
     })
 
@@ -42,13 +43,15 @@ export function useSorties() {
         onSuccess: () => {
             queryClient.invalidateQueries(['sorties'])
             queryClient.invalidateQueries(['pigeons'])
+            queryClient.invalidateQueries(['cages'])
+            queryClient.invalidateQueries(['cages-visualisation'])
+            queryClient.invalidateQueries(['couples'])
+            queryClient.invalidateQueries(['dashboard'])
             showToast('Sortie modifiée avec succès', 'success')
         },
         onError: (error) => {
-            // Ne pas afficher de toast pour les erreurs de validation (422)
-            if (error.response?.status !== 422) {
-                showToast(error.response?.data?.message || 'Erreur lors de la modification de la sortie', 'error')
-            }
+            const message = error.response?.data?.message || 'Erreur lors de la modification de la sortie'
+            showToast(message, 'error')
         }
     })
 
@@ -58,6 +61,10 @@ export function useSorties() {
         onSuccess: () => {
             queryClient.invalidateQueries(['sorties'])
             queryClient.invalidateQueries(['pigeons'])
+            queryClient.invalidateQueries(['cages'])
+            queryClient.invalidateQueries(['cages-visualisation'])
+            queryClient.invalidateQueries(['couples'])
+            queryClient.invalidateQueries(['dashboard'])
             showToast('Sortie supprimée avec succès', 'success')
         },
         onError: (error) => {

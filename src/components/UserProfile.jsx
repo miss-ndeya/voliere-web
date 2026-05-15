@@ -1,4 +1,5 @@
-import { LogOut } from 'lucide-react'
+import { LogOut, User } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useLogout } from '../hooks/useLogout'
 import { useToast } from '../context/ToastContext'
@@ -34,12 +35,13 @@ function UserProfile({ collapsed = false }) {
     if (collapsed) {
         return (
             <div className="flex flex-col items-center gap-3">
-                <div 
-                    className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white text-sm font-semibold"
+                <Link 
+                    to="/profile"
+                    className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white text-sm font-semibold hover:bg-accent/80 transition-colors"
                     title={user.name}
                 >
                     {userInitial}
-                </div>
+                </Link>
                 <button
                     onClick={handleLogout}
                     disabled={isLoggingOut}
@@ -54,16 +56,22 @@ function UserProfile({ collapsed = false }) {
 
     return (
         <div className="flex items-center gap-3 px-2">
-            <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+            <Link 
+                to="/profile"
+                className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-white text-sm font-semibold flex-shrink-0 hover:bg-accent/80 transition-colors"
+                title="Mon profil"
+            >
                 {userInitial}
-            </div>
+            </Link>
             <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white truncate">
-                    {user.name}
-                </p>
-                <p className="text-xs text-sidebar-foreground/70 truncate">
-                    {user.email}
-                </p>
+                <Link to="/profile" className="block hover:text-white/90 transition-colors">
+                    <p className="text-sm font-medium text-white truncate">
+                        {user.name}
+                    </p>
+                    <p className="text-xs text-sidebar-foreground/70 truncate">
+                        {user.email}
+                    </p>
+                </Link>
             </div>
             <button
                 onClick={handleLogout}

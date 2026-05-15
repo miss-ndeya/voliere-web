@@ -50,10 +50,14 @@ export function usePigeons() {
         mutationFn: (id) => pigeonService.delete(id),
         onSuccess: () => {
             queryClient.invalidateQueries(['pigeons'])
-            showToast('Pigeon supprimé avec succès', 'success')
+            queryClient.invalidateQueries(['cages'])
+            queryClient.invalidateQueries(['cages-visualisation'])
+            queryClient.invalidateQueries(['couples'])
+            queryClient.invalidateQueries(['dashboard'])
+            showToast('Pigeon archivé avec succès', 'success')
         },
         onError: (error) => {
-            const message = error.response?.data?.message || 'Erreur lors de la suppression du pigeon'
+            const message = error.response?.data?.message || 'Erreur lors de l\'archivage du pigeon'
             showToast(message, 'error')
         }
     })

@@ -23,12 +23,12 @@ export function useCages() {
         mutationFn: (data) => cageService.create(data),
         onSuccess: () => {
             queryClient.invalidateQueries(['cages'])
+            queryClient.invalidateQueries(['cages-visualisation'])
             showToast('Cage créée avec succès', 'success')
         },
         onError: (error) => {
-            if (error.response?.status !== 422) {
-                showToast(error.response?.data?.message || 'Erreur lors de la création de la cage', 'error')
-            }
+            const message = error.response?.data?.message || 'Erreur lors de la création de la cage'
+            showToast(message, 'error')
         }
     })
 
@@ -37,12 +37,12 @@ export function useCages() {
         mutationFn: ({ id, data }) => cageService.update(id, data),
         onSuccess: () => {
             queryClient.invalidateQueries(['cages'])
+            queryClient.invalidateQueries(['cages-visualisation'])
             showToast('Cage modifiée avec succès', 'success')
         },
         onError: (error) => {
-            if (error.response?.status !== 422) {
-                showToast(error.response?.data?.message || 'Erreur lors de la modification de la cage', 'error')
-            }
+            const message = error.response?.data?.message || 'Erreur lors de la modification de la cage'
+            showToast(message, 'error')
         }
     })
 
@@ -51,6 +51,7 @@ export function useCages() {
         mutationFn: (id) => cageService.delete(id),
         onSuccess: () => {
             queryClient.invalidateQueries(['cages'])
+            queryClient.invalidateQueries(['cages-visualisation'])
             showToast('Cage supprimée avec succès', 'success')
         },
         onError: (error) => {

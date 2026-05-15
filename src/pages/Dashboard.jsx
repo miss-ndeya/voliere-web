@@ -47,7 +47,7 @@ function Dashboard() {
         },
         { 
             label: 'Revenus ventes', 
-            value: `${stats?.ventes?.revenu || 0} €`, 
+            value: `${stats?.ventes?.revenu || 0} fcfa`, 
             icon: TrendingUp, 
             hint: `${stats?.ventes?.nombre || 0} vente(s)` 
         },

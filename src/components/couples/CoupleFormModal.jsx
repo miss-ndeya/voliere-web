@@ -125,7 +125,7 @@ export function CoupleFormModal({ isOpen, onClose, couple, onSubmit, isLoading }
             onClose={onClose}
             title={couple ? 'Modifier le couple' : 'Former un nouveau couple'}
         >
-            <form onSubmit={handleSubmit} className="space-y-4 p-6">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-6">
                 {/* Mâle */}
                 <div>
                     <label htmlFor="male_id" className="block text-sm font-medium text-foreground mb-2">
