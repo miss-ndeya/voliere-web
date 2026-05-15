@@ -2,10 +2,6 @@ import { LoginBranding } from '../../components/auth/LoginBranding'
 import { LoginHeader } from '../../components/auth/LoginHeader'
 import { LoginForm } from '../../components/auth/LoginForm'
 
-/**
- * Page de connexion - Design premium split-screen
- * Architecture modulaire avec composants réutilisables
- */
 function Login() {
     return (
         <div className="min-h-screen flex overflow-hidden">
