@@ -123,10 +123,23 @@ function Visualisation() {
         })
     }, [pigeons, allCages, couples])
 
-    // Couples sans cage
-    const couplesSansCage = useMemo(() =>
-        couples?.filter(c => c.actif && !allCages?.data?.find(cage => cage.occupants?.male?.id === c.male_id)) || []
-    , [couples, allCages])
+    // Couples sans cage (le backend validera si les membres sont disponibles)
+    const couplesSansCage = useMemo(() => {
+        if (!couples || !allCages?.data) return []
+        
+        return couples.filter(c => {
+            // Le couple doit être actif
+            if (!c.actif) return false
+            
+            // Vérifier que le couple n'occupe pas déjà une cage
+            const coupleEnCage = allCages.data.some(cage => 
+                cage.occupants?.male?.id === c.male_id && cage.occupants?.femelle?.id === c.femelle_id
+            )
+            if (coupleEnCage) return false
+            
+            return true
+        })
+    }, [couples, allCages])
 
     // Mutations
     const affecter = useMutation({
