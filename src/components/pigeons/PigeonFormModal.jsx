@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { Loader2 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { pigeonService } from '../../api/services/pigeonService'
+import { cageService } from '../../api/services/cageService'
+import { CageSelectField } from '../cages/CageSelectField'
 import { Modal } from '../ui/Modal'
 import Input from '../ui/Input'
 
@@ -15,7 +17,8 @@ export function PigeonFormModal({ isOpen, onClose, pigeon, onSubmit, isLoading }
         race: '',
         date_naissance: '',
         pere_id: '',
-        mere_id: ''
+        mere_id: '',
+        cage_id: ''
     })
     
     const [errors, setErrors] = useState({})
@@ -23,9 +26,17 @@ export function PigeonFormModal({ isOpen, onClose, pigeon, onSubmit, isLoading }
     // Récupérer la liste des pigeons pour les parents
     const { data: pigeons } = useQuery({
         queryKey: ['pigeons'],
-        queryFn: () => api.get('/pigeons').then(res => res.data),
+        queryFn: () => pigeonService.getAll(),
         enabled: isOpen
     })
+
+    const { data: cages } = useQuery({
+        queryKey: ['cages'],
+        queryFn: () => cageService.getAll(),
+        enabled: isOpen && !pigeon
+    })
+
+    const cagesLibres = cages?.filter((c) => c.statut === 'libre') || []
 
     // Pré-remplir le formulaire en mode édition
     useEffect(() => {
@@ -36,7 +47,8 @@ export function PigeonFormModal({ isOpen, onClose, pigeon, onSubmit, isLoading }
                 race: pigeon.race || '',
                 date_naissance: pigeon.date_naissance || '',
                 pere_id: pigeon.pere_id || '',
-                mere_id: pigeon.mere_id || ''
+                mere_id: pigeon.mere_id || '',
+                cage_id: ''
             })
         } else {
             setForm({
@@ -45,7 +57,8 @@ export function PigeonFormModal({ isOpen, onClose, pigeon, onSubmit, isLoading }
                 race: '',
                 date_naissance: '',
                 pere_id: '',
-                mere_id: ''
+                mere_id: '',
+                cage_id: ''
             })
         }
         setErrors({})
@@ -77,7 +90,9 @@ export function PigeonFormModal({ isOpen, onClose, pigeon, onSubmit, isLoading }
         if (!validate()) return
 
         try {
-            await onSubmit(form)
+            const payload = { ...form }
+            if (!payload.cage_id) delete payload.cage_id
+            await onSubmit(payload)
             // Ne pas fermer ici, le parent le fera après succès
         } catch (error) {
             // Afficher les erreurs backend
@@ -94,7 +109,8 @@ export function PigeonFormModal({ isOpen, onClose, pigeon, onSubmit, isLoading }
             race: '',
             date_naissance: '',
             pere_id: '',
-            mere_id: ''
+            mere_id: '',
+            cage_id: ''
         })
         setErrors({})
         onClose()
@@ -230,6 +246,18 @@ export function PigeonFormModal({ isOpen, onClose, pigeon, onSubmit, isLoading }
                         </select>
                     </div>
                 </div>
+
+
+                {!pigeon && (
+                    <CageSelectField
+                        label="Cage (optionnel)"
+                        value={form.cage_id}
+                        onChange={(v) => setForm({ ...form, cage_id: v })}
+                        cages={cagesLibres}
+                        disabled={isLoading}
+                        hint="Affectez le pigeon dès l'enregistrement pour éviter un passage par la volière."
+                    />
+                )}
 
                 {/* Actions */}
                 <div className="flex gap-3 mt-6 pt-6 border-t border-border">

@@ -33,6 +33,12 @@ export function CageDetailPanel({
           )
         : null
 
+    const coupleARegrouper = cage.statut === 'occupe' && cage.occupants?.pigeon
+        ? couples.find(
+            (c) => c.actif && (c.male_id === cage.occupants.pigeon.id || c.femelle_id === cage.occupants.pigeon.id)
+          )
+        : null
+
     const coupleReproductions = activeCouple
         ? reproductions
             .filter((r) => r.couple_id === activeCouple.id)
@@ -142,14 +148,33 @@ export function CageDetailPanel({
                     )}
 
                     {cage.statut !== 'libre' && (
-                        <button
-                            onClick={() => onLiberer(cage.id)}
-                            disabled={isLoading}
-                            className="w-full bg-destructive text-destructive-foreground py-2.5 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-ring"
-                        >
-                            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : ""}
-                            Libérer la cage
-                        </button>
+                        <div className="space-y-2">
+                            {coupleARegrouper && (
+                                <button
+                                    type="button"
+                                    onClick={() => onAffecter(cage.id, 'couple', coupleARegrouper.id)}
+                                    disabled={isLoading}
+                                    className="w-full bg-cage-couple text-cage-couple-foreground py-2.5 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-ring"
+                                >
+                                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : (
+                                        <>
+                                            <Bird className="h-4 w-4 -mr-1" />
+                                            <Bird className="h-4 w-4" />
+                                        </>
+                                    )}
+                                    Regrouper le couple ici
+                                </button>
+                            )}
+                            <button
+                                type="button"
+                                onClick={() => onLiberer(cage.id)}
+                                disabled={isLoading}
+                                className="w-full bg-destructive text-destructive-foreground py-2.5 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-ring"
+                            >
+                                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                                Libérer la cage
+                            </button>
+                        </div>
                     )}
 
                     {/* Formulaire */}

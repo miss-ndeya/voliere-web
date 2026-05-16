@@ -22,9 +22,15 @@ export function usePigeons() {
     // Mutation pour créer un pigeon
     const createMutation = useMutation({
         mutationFn: (data) => pigeonService.create(data),
-        onSuccess: () => {
+        onSuccess: (data) => {
             queryClient.invalidateQueries(['pigeons'])
+            queryClient.invalidateQueries(['cages'])
+            queryClient.invalidateQueries(['cages-visualisation'])
+            queryClient.invalidateQueries(['dashboard'])
             showToast('Pigeon créé avec succès', 'success')
+            if (data?.cage_message) {
+                showToast(data.cage_message, 'info')
+            }
         },
         onError: (error) => {
             const message = error.response?.data?.message || 'Erreur lors de la création du pigeon'
