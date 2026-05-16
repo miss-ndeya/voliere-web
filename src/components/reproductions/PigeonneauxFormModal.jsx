@@ -21,7 +21,10 @@ export function PigeonneauxFormModal({ isOpen, onClose, reproduction, onSubmit, 
         setErrors({})
     }, [isOpen, reproduction])
 
+    const maxJeunes = Math.min(2, reproduction?.nb_jeunes ?? 2)
+
     const ajouterPigeonneau = () => {
+        if (pigeonneaux.length >= maxJeunes) return
         setPigeonneaux([...pigeonneaux, { 
             bague: '', 
             sexe: '', 
@@ -65,6 +68,10 @@ export function PigeonneauxFormModal({ isOpen, onClose, reproduction, onSubmit, 
             newErrors.general = 'Les numéros de bague doivent être uniques'
         }
 
+        if (pigeonneaux.length > maxJeunes) {
+            newErrors.general = `Maximum ${maxJeunes} pigeonneau(x) pour cette reproduction`
+        }
+
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
     }
@@ -83,9 +90,9 @@ export function PigeonneauxFormModal({ isOpen, onClose, reproduction, onSubmit, 
 
     if (!reproduction) return null
 
-    const placesDisponibles = reproduction.nb_jeunes
+    const placesDisponibles = maxJeunes
     const pigeonneauxExistants = reproduction.pigeonneaux?.length || 0
-    const placesRestantes = placesDisponibles - pigeonneauxExistants
+    const placesRestantes = Math.max(0, placesDisponibles - pigeonneauxExistants)
 
     return (
         <Modal
@@ -191,7 +198,7 @@ export function PigeonneauxFormModal({ isOpen, onClose, reproduction, onSubmit, 
                 </div>
 
                 {/* Bouton ajouter */}
-                {pigeonneaux.length < placesRestantes && (
+                {pigeonneaux.length < placesRestantes && pigeonneaux.length < maxJeunes && (
                     <Button
                         type="button"
                         variant="outline"

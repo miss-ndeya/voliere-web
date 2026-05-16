@@ -1,7 +1,7 @@
 import { Bird, Heart, Home, TrendingUp } from 'lucide-react'
 import { useDashboard } from '../hooks/useDashboard'
 import { useAuth } from '../context/AuthContext'
-import { HeroCard, StatCard, RecentReproductions, QuickActions } from '../components/dashboard'
+import { HeroCard, StatCard, RecentReproductions, QuickActions, DashboardAlertes } from '../components/dashboard'
 
 /**
  * Dashboard - Page d'accueil avec statistiques et actions rapides
@@ -23,7 +23,7 @@ function Dashboard() {
         )
     }
 
-    const { stats, recentReproductions } = data || {}
+    const { stats, recentReproductions, alertes } = data || {}
 
     // Configuration des cartes de statistiques
     const statCards = [
@@ -70,7 +70,8 @@ function Dashboard() {
                 ))}
             </div>
 
-            {/* Quick links + Recent reproductions */}
+            <DashboardAlertes alertes={alertes || []} />
+
             <div className="grid gap-4 lg:grid-cols-3">
                 <RecentReproductions reproductions={recentReproductions || []} />
                 <QuickActions />

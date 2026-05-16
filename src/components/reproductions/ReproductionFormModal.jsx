@@ -4,13 +4,15 @@ import { Modal } from '../ui/Modal'
 import Input from '../ui/Input'
 import Button from '../ui/Button'
 import { coupleService } from '../../api/services/coupleService'
+import { reproductionService } from '../../api/services/reproductionService'
+import { filterCouplesPourNouvelleReproduction } from '../../utils/reproductionWorkflow'
 
 export function ReproductionFormModal({ isOpen, onClose, reproduction, onSubmit, isLoading }) {
     const [formData, setFormData] = useState({
         couple_id: '',
         date_ponte: '',
         date_eclosion: '',
-        nb_jeunes: ''
+        nb_jeunes: '0'
     })
 
     const [errors, setErrors] = useState({})
@@ -22,7 +24,13 @@ export function ReproductionFormModal({ isOpen, onClose, reproduction, onSubmit,
         enabled: isOpen
     })
 
-    const couplesActifs = couples?.filter(c => c.actif) || []
+    const { data: reproductions } = useQuery({
+        queryKey: ['reproductions'],
+        queryFn: () => reproductionService.getAll(),
+        enabled: isOpen
+    })
+
+    const couplesEligibles = filterCouplesPourNouvelleReproduction(couples, reproductions, reproduction)
 
     useEffect(() => {
         if (reproduction) {
@@ -39,7 +47,7 @@ export function ReproductionFormModal({ isOpen, onClose, reproduction, onSubmit,
                 couple_id: '',
                 date_ponte: '',
                 date_eclosion: '',
-                nb_jeunes: ''
+                nb_jeunes: '0'
             })
         }
         setErrors({})
@@ -56,12 +64,12 @@ export function ReproductionFormModal({ isOpen, onClose, reproduction, onSubmit,
             newErrors.date_ponte = 'La date de ponte est requise'
         }
 
-        if (!formData.nb_jeunes || parseInt(formData.nb_jeunes) < 0) {
-            newErrors.nb_jeunes = 'Le nombre de jeunes doit être supérieur ou égal à 0'
+        if (formData.nb_jeunes === '' || parseInt(formData.nb_jeunes, 10) < 0) {
+            newErrors.nb_jeunes = 'Indiquez le nombre de jeunes (0 à 2)'
         }
 
-        if (parseInt(formData.nb_jeunes) > 4) {
-            newErrors.nb_jeunes = 'Le nombre de jeunes ne peut pas dépasser 4'
+        if (parseInt(formData.nb_jeunes) > 2) {
+            newErrors.nb_jeunes = 'Le nombre de jeunes ne peut pas dépasser 2'
         }
 
         // Vérifier que la date d'éclosion est après la date de ponte
@@ -121,7 +129,7 @@ export function ReproductionFormModal({ isOpen, onClose, reproduction, onSubmit,
                         } ${reproduction ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                         <option value="">Choisir un couple...</option>
-                        {couplesActifs.map(c => (
+                        {couplesEligibles.map(c => (
                             <option key={c.id} value={c.id}>
                                 ♂ {c.male?.bague} × ♀ {c.femelle?.bague}
                             </option>
@@ -130,6 +138,14 @@ export function ReproductionFormModal({ isOpen, onClose, reproduction, onSubmit,
                     {errors.couple_id && (
                         <p className="text-destructive text-xs mt-1">{errors.couple_id}</p>
                     )}
+                    {!reproduction && couplesEligibles.length === 0 && (
+                        <p className="text-muted-foreground text-xs mt-1">
+                            Aucun couple disponible : chaque couple actif a déjà une couvée en cours.
+                        </p>
+                    )}
+                    <p className="text-muted-foreground text-xs mt-1">
+                        Un seul suivi de couvée à la fois par couple. Mettez 0 jeune si la couvée est vide.
+                    </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -180,7 +196,7 @@ export function ReproductionFormModal({ isOpen, onClose, reproduction, onSubmit,
                         id="nb_jeunes"
                         type="number"
                         min="0"
-                        max="4"
+                        max="2"
                         value={formData.nb_jeunes}
                         onChange={(e) => handleChange('nb_jeunes', e.target.value)}
                         placeholder="0"
@@ -189,7 +205,7 @@ export function ReproductionFormModal({ isOpen, onClose, reproduction, onSubmit,
                     {errors.nb_jeunes && (
                         <p className="text-destructive text-xs mt-1">{errors.nb_jeunes}</p>
                     )}
-                    <p className="text-muted-foreground text-xs mt-1">Maximum 4 jeunes (biologiquement réaliste)</p>
+                    <p className="text-muted-foreground text-xs mt-1">De 0 à 2 jeunes par reproduction</p>
                 </div>
 
                 {/* Actions */}

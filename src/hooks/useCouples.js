@@ -21,9 +21,18 @@ export function useCouples() {
     // Mutation pour créer un couple
     const createMutation = useMutation({
         mutationFn: (data) => coupleService.create(data),
-        onSuccess: () => {
+        onSuccess: (data) => {
             queryClient.invalidateQueries(['couples'])
+            queryClient.invalidateQueries(['cages'])
+            queryClient.invalidateQueries(['cages-visualisation'])
+            queryClient.invalidateQueries(['pigeons'])
+            queryClient.invalidateQueries(['dashboard'])
             showToast('Couple créé avec succès', 'success')
+            if (data?.cage_message) {
+                showToast(data.cage_message, 'success')
+            } else if (data?.avertissement) {
+                showToast(data.avertissement, 'warning')
+            }
         },
         onError: (error) => {
             const message = error.response?.data?.message || 'Erreur lors de la création du couple'

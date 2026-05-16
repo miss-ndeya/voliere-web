@@ -144,11 +144,11 @@ function Visualisation() {
     // Mutations
     const affecter = useMutation({
         mutationFn: ({ cageId, type, id }) => cageService.affecter(cageId, { type, id }),
-        onSuccess: () => {
+        onSuccess: (data) => {
             queryClient.invalidateQueries(['cages-visualisation'])
             queryClient.invalidateQueries(['pigeons'])
             queryClient.invalidateQueries(['couples'])
-            showToast('Affectation réussie !', 'success')
+            showToast(data?.message || 'Affectation réussie !', 'success')
         },
         onError: (error) => {
             showToast(error.response?.data?.message || 'Erreur lors de l\'affectation', 'error')

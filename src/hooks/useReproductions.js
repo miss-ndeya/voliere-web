@@ -24,6 +24,7 @@ export function useReproductions() {
         onSuccess: () => {
             queryClient.invalidateQueries(['reproductions'])
             queryClient.invalidateQueries(['couples'])
+            queryClient.invalidateQueries(['dashboard'])
             showToast('Reproduction enregistrée avec succès', 'success')
         },
         onError: (error) => {
@@ -63,6 +64,7 @@ export function useReproductions() {
         onSuccess: (data) => {
             queryClient.invalidateQueries(['reproductions'])
             queryClient.invalidateQueries(['pigeons'])
+            queryClient.invalidateQueries(['dashboard'])
             showToast(data.message || 'Pigeonneaux créés avec succès', 'success')
         },
         onError: (error) => {

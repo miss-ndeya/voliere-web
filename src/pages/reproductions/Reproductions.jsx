@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Plus, Egg } from 'lucide-react'
 import { useReproductions } from '../../hooks/useReproductions'
+import { isEnCours, isABaguer, isTerminee } from '../../utils/reproductionWorkflow'
 import { ReproductionCard } from '../../components/reproductions/ReproductionCard'
 import { ReproductionFormModal } from '../../components/reproductions/ReproductionFormModal'
 import { PigeonneauxFormModal } from '../../components/reproductions/PigeonneauxFormModal'
@@ -14,7 +15,7 @@ function Reproductions() {
     const [reproductionEdit, setReproductionEdit] = useState(null)
     const [reproductionForPigeonneaux, setReproductionForPigeonneaux] = useState(null)
     const [reproductionToDelete, setReproductionToDelete] = useState(null)
-    const [activeTab, setActiveTab] = useState('en-cours') // 'en-cours' ou 'eclos'
+    const [activeTab, setActiveTab] = useState('en-cours')
 
     const {
         reproductions,
@@ -29,21 +30,26 @@ function Reproductions() {
         isCreatingPigeonneaux
     } = useReproductions()
 
-    // Séparer les reproductions en cours et écloses
     const reproductionsEnCours = useMemo(() => {
         if (!reproductions) return []
-        return reproductions.filter(r => !r.date_eclosion)
+        return reproductions.filter((r) => isEnCours(r.statut))
     }, [reproductions])
 
-    const reproductionsEcloses = useMemo(() => {
+    const reproductionsABaguer = useMemo(() => {
         if (!reproductions) return []
-        return reproductions.filter(r => r.date_eclosion)
+        return reproductions.filter((r) => isABaguer(r.statut))
     }, [reproductions])
 
-    // Afficher selon le tab actif
+    const reproductionsTerminees = useMemo(() => {
+        if (!reproductions) return []
+        return reproductions.filter((r) => isTerminee(r.statut))
+    }, [reproductions])
+
     const filteredReproductions = useMemo(() => {
-        return activeTab === 'en-cours' ? reproductionsEnCours : reproductionsEcloses
-    }, [reproductionsEnCours, reproductionsEcloses, activeTab])
+        if (activeTab === 'en-cours') return reproductionsEnCours
+        if (activeTab === 'a-baguer') return reproductionsABaguer
+        return reproductionsTerminees
+    }, [activeTab, reproductionsEnCours, reproductionsABaguer, reproductionsTerminees])
 
     const handleEdit = (reproduction) => {
         setReproductionEdit(reproduction)
@@ -68,6 +74,7 @@ function Reproductions() {
     }
 
     const handleCreatePigeonneaux = (reproduction) => {
+        if (!reproduction.can_create_pigeonneaux) return
         setReproductionForPigeonneaux(reproduction)
         setShowPigeonneauxModal(true)
     }
@@ -115,7 +122,7 @@ function Reproductions() {
                     <div>
                         <h1 className="font-display text-3xl">Reproductions</h1>
                         <p className="text-sm text-muted-foreground mt-1">
-                            {reproductionsEnCours.length} en cours · {reproductionsEcloses.length} éclos{reproductionsEcloses.length > 1 ? 'es' : ''}
+                            {reproductionsEnCours.length} en cours · {reproductionsABaguer.length} à baguer · {reproductionsTerminees.length} terminée{reproductionsTerminees.length > 1 ? 's' : ''}
                         </p>
                     </div>
                     <Button onClick={() => setShowModal(true)} className="gap-2">
@@ -125,8 +132,9 @@ function Reproductions() {
                 </div>
 
                 {/* Onglets */}
-                <div className="inline-flex bg-muted/30 rounded-lg p-1 gap-1">
+                <div className="inline-flex flex-wrap bg-muted/30 rounded-lg p-1 gap-1">
                     <button
+                        type="button"
                         onClick={() => setActiveTab('en-cours')}
                         className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'en-cours'
                             ? 'bg-card text-foreground shadow-sm'
@@ -136,13 +144,24 @@ function Reproductions() {
                         En cours ({reproductionsEnCours.length})
                     </button>
                     <button
-                        onClick={() => setActiveTab('eclos')}
-                        className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'eclos'
+                        type="button"
+                        onClick={() => setActiveTab('a-baguer')}
+                        className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'a-baguer'
                             ? 'bg-card text-foreground shadow-sm'
                             : 'text-muted-foreground hover:text-foreground'
                             }`}
                     >
-                        Éclos ({reproductionsEcloses.length})
+                        À baguer ({reproductionsABaguer.length})
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setActiveTab('terminees')}
+                        className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'terminees'
+                            ? 'bg-card text-foreground shadow-sm'
+                            : 'text-muted-foreground hover:text-foreground'
+                            }`}
+                    >
+                        Terminées ({reproductionsTerminees.length})
                     </button>
                 </div>
 
@@ -167,13 +186,14 @@ function Reproductions() {
                             </div>
                         </div>
                         <h3 className="text-xl font-semibold text-foreground mb-3">
-                            {activeTab === 'en-cours' ? 'Aucune reproduction en cours' : 'Aucune reproduction éclose'}
+                            {activeTab === 'en-cours' && 'Aucune couvée en incubation'}
+                            {activeTab === 'a-baguer' && 'Aucune couvée à baguer'}
+                            {activeTab === 'terminees' && 'Aucune reproduction terminée'}
                         </h3>
                         <p className="text-muted-foreground max-w-md mx-auto mb-8">
-                            {activeTab === 'en-cours'
-                                ? "Enregistrez une nouvelle ponte pour suivre l'incubation et les naissances."
-                                : "Les reproductions écloses apparaîtront ici une fois la date d'éclosion renseignée."
-                            }
+                            {activeTab === 'en-cours' && "Enregistrez une nouvelle ponte pour suivre l'incubation."}
+                            {activeTab === 'a-baguer' && "Les couvées dont l'éclosion est passée et les jeunes déclarés apparaîtront ici."}
+                            {activeTab === 'terminees' && "Les couvées clôturées (jeunes bagués ou couvée vide) sont listées ici."}
                         </p>
                         {activeTab === 'en-cours' && (
                             <Button onClick={() => setShowModal(true)} className="gap-2" size="lg">

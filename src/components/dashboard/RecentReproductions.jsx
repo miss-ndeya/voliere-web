@@ -33,7 +33,9 @@ export function RecentReproductions({ reproductions }) {
                                         {r.male.bague} × {r.femelle.bague}
                                     </div>
                                     <div className="text-xs text-muted-foreground">
-                                        Ponte le {new Date(r.date_ponte).toLocaleDateString('fr-FR')} · {r.nombre_jeunes || 0} pigeonneau(x)
+                                        Ponte le {new Date(r.date_ponte).toLocaleDateString('fr-FR')}
+                                        {r.statut_label && ` · ${r.statut_label}`}
+                                        {typeof r.nb_jeunes === 'number' && ` · ${r.nb_jeunes} jeune(s)`}
                                     </div>
                                 </div>
                             </div>
